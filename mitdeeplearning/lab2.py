@@ -19,11 +19,7 @@ def plot_image_prediction(i, predictions_array, true_label, img):
   plt.imshow(np.squeeze(img), cmap=plt.cm.binary)
 
   predicted_label = np.argmax(predictions_array)
-  if predicted_label == true_label:
-    color = 'blue'
-  else:
-    color = 'red'
-
+  color = 'blue' if predicted_label == true_label else 'red'
   plt.xlabel("{} {:2.0f}% ({})".format(predicted_label,
                                 100*np.max(predictions_array),
                                 true_label),
@@ -45,22 +41,22 @@ def plot_value_prediction(i, predictions_array, true_label):
 class TrainingDatasetLoader(object):
     def __init__(self, data_path):
 
-        print ("Opening {}".format(data_path))
-        sys.stdout.flush()
+      print(f"Opening {data_path}")
+      sys.stdout.flush()
 
-        self.cache = h5py.File(data_path, 'r')
+      self.cache = h5py.File(data_path, 'r')
 
-        print ("Loading data into memory...")
-        sys.stdout.flush()
-        self.images = self.cache['images'][:]
-        self.labels = self.cache['labels'][:].astype(np.float32)
-        self.image_dims = self.images.shape
-        n_train_samples = self.image_dims[0]
+      print ("Loading data into memory...")
+      sys.stdout.flush()
+      self.images = self.cache['images'][:]
+      self.labels = self.cache['labels'][:].astype(np.float32)
+      self.image_dims = self.images.shape
+      n_train_samples = self.image_dims[0]
 
-        self.train_inds = np.random.permutation(np.arange(n_train_samples))
+      self.train_inds = np.random.permutation(np.arange(n_train_samples))
 
-        self.pos_train_inds = self.train_inds[ self.labels[self.train_inds, 0] == 1.0 ]
-        self.neg_train_inds = self.train_inds[ self.labels[self.train_inds, 0] != 1.0 ]
+      self.pos_train_inds = self.train_inds[ self.labels[self.train_inds, 0] == 1.0 ]
+      self.neg_train_inds = self.train_inds[ self.labels[self.train_inds, 0] != 1.0 ]
 
     def get_train_size(self):
         return self.train_inds.shape[0]
@@ -91,17 +87,17 @@ class TrainingDatasetLoader(object):
 
 
 def get_test_faces():
-    cwd = os.path.dirname(__file__)
-    images = {
-        "LF": [],
-        "LM": [],
-        "DF": [],
-        "DM": []
-    }
-    for key in images.keys():
-        files = glob.glob(os.path.join(cwd, "data", "faces", key, "*.png"))
-        for file in sorted(files):
-            image = cv2.resize(cv2.imread(file), (64,64))[:,:,::-1]/255.
-            images[key].append(image)
+  cwd = os.path.dirname(__file__)
+  images = {
+      "LF": [],
+      "LM": [],
+      "DF": [],
+      "DM": []
+  }
+  for key in images:
+    files = glob.glob(os.path.join(cwd, "data", "faces", key, "*.png"))
+    for file in sorted(files):
+        image = cv2.resize(cv2.imread(file), (64,64))[:,:,::-1]/255.
+        images[key].append(image)
 
-    return images["LF"], images["LM"], images["DF"], images["DM"]
+  return images["LF"], images["LM"], images["DF"], images["DM"]

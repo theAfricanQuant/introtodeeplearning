@@ -55,22 +55,24 @@ class PeriodicPlotter:
     self.tic = time.time()
 
   def plot(self, data):
-    if time.time() - self.tic > self.sec:
-      plt.cla()
+    if time.time() - self.tic <= self.sec:
+      return
+    plt.cla()
 
-      if self.scale is None:
-        plt.plot(data)
-      elif self.scale == 'semilogx':
-        plt.semilogx(data)
-      elif self.scale == 'semilogy':
-        plt.semilogy(data)
-      elif self.scale == 'loglog':
-        plt.loglog(data)
-      else:
-        raise ValueError("unrecognized parameter scale {}".format(self.scale))
+    if self.scale is None:
+      plt.plot(data)
+    elif self.scale == 'semilogx':
+      plt.semilogx(data)
+    elif self.scale == 'semilogy':
+      plt.semilogy(data)
+    elif self.scale == 'loglog':
+      plt.loglog(data)
+    else:
+      raise ValueError(f"unrecognized parameter scale {self.scale}")
 
-      plt.xlabel(self.xlabel); plt.ylabel(self.ylabel)
-      ipythondisplay.clear_output(wait=True)
-      ipythondisplay.display(plt.gcf())
+    plt.xlabel(self.xlabel)
+    plt.ylabel(self.ylabel)
+    ipythondisplay.clear_output(wait=True)
+    ipythondisplay.display(plt.gcf())
 
-      self.tic = time.time()
+    self.tic = time.time()

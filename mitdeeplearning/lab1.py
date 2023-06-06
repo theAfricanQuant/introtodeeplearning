@@ -13,25 +13,24 @@ cwd = os.path.dirname(__file__)
 def load_training_data():
     with open(os.path.join(cwd, "data", "irish.abc"), "r") as f:
         text = f.read()
-    songs = extract_song_snippet(text)
-    return songs
+    return extract_song_snippet(text)
 
 def extract_song_snippet(text):
     pattern = '\n\n(.*?)\n\n'
     search_results = re.findall(pattern, text, overlapped=True, flags=re.DOTALL)
-    songs = [song for song in search_results]
-    print("Found {} songs in text".format(len(songs)))
+    songs = list(search_results)
+    print(f"Found {len(songs)} songs in text")
     return songs
 
 def save_song_to_abc(song, filename="tmp"):
-    save_name = "{}.abc".format(filename)
+    save_name = f"{filename}.abc"
     with open(save_name, "w") as f:
         f.write(song)
     return filename
 
 def abc2wav(abc_file):
     path_to_tool = os.path.join(cwd, 'bin', 'abc2wav')
-    cmd = "{} {}".format(path_to_tool, abc_file)
+    cmd = f"{path_to_tool} {abc_file}"
     return os.system(cmd)
 
 def play_wav(wav_file):
@@ -39,10 +38,8 @@ def play_wav(wav_file):
 
 def play_song(song):
     basename = save_song_to_abc(song)
-    ret = abc2wav(basename+'.abc')
-    if ret == 0: #did not suceed
-        return play_wav(basename+'.wav')
-    return None
+    ret = abc2wav(f'{basename}.abc')
+    return play_wav(f'{basename}.wav') if ret == 0 else None
 
 def play_generated_song(generated_text):
     songs = extract_song_snippet(generated_text)
@@ -68,8 +65,12 @@ def test_batch_func_shapes(func, args):
     dataset, seq_length, batch_size = args
     x, y = func(*args)
     correct = (batch_size, seq_length)
-    assert x.shape == correct, "[FAIL] test_batch_func_shapes: x {} is not correct shape {}".format(x.shape, correct)
-    assert y.shape == correct, "[FAIL] test_batch_func_shapes: y {} is not correct shape {}".format(y.shape, correct)
+    assert (
+        x.shape == correct
+    ), f"[FAIL] test_batch_func_shapes: x {x.shape} is not correct shape {correct}"
+    assert (
+        y.shape == correct
+    ), f"[FAIL] test_batch_func_shapes: y {y.shape} is not correct shape {correct}"
     print("[PASS] test_batch_func_shapes")
     return True
 
@@ -81,7 +82,15 @@ def test_batch_func_next_step(func, args):
 
 def test_custom_dense_layer_output(y):
     true_y = np.array([[0.2697859,  0.45750418, 0.66536945]],dtype='float32')
-    assert tf.shape(y).numpy().tolist() == list(true_y.shape), "[FAIL] output is of incorrect shape. expected {} but got {}".format(true_y.shape, y.numpy().shape)
-    np.testing.assert_almost_equal(y.numpy(), true_y, decimal=7, err_msg="[FAIL] output is of incorrect value. expected {} but got {}".format(y.numpy(), true_y), verbose=True)
+    assert tf.shape(y).numpy().tolist() == list(
+        true_y.shape
+    ), f"[FAIL] output is of incorrect shape. expected {true_y.shape} but got {y.numpy().shape}"
+    np.testing.assert_almost_equal(
+        y.numpy(),
+        true_y,
+        decimal=7,
+        err_msg=f"[FAIL] output is of incorrect value. expected {y.numpy()} but got {true_y}",
+        verbose=True,
+    )
     print("[PASS] test_custom_dense_layer_output")
     return True
